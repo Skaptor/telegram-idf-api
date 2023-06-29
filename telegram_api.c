@@ -225,7 +225,13 @@ static esp_err_t parse_getUpdates(char *str, TelegramMessage_t *container)
 
 	container->chat_id = cJSON_GetObjectItemCaseSensitive(from, "id")->valuedouble;
 	container->first_name = cJSON_GetObjectItemCaseSensitive(from, "first_name")->valuestring;
-	container->last_name = cJSON_GetObjectItemCaseSensitive(from, "last_name")->valuestring;
+
+    cJSON *last_name = cJSON_GetObjectItemCaseSensitive(from, "last_name");
+
+    if (last_name != NULL){
+	    container->last_name = last_name->valuestring;
+    }
+
     container->message = (text != NULL) ? text->valuestring : NULL;
     container->valid = text != NULL;
 
@@ -302,7 +308,7 @@ esp_err_t telegram_api_sendPhoto(uint64_t chat_id, uint8_t *data, uint32_t size)
 	esp_http_client_write(client, body, strlen(body));
 
     uint8_t *tmp = data;
-    #define CHUNK 1024
+    #define CHUNK 4096
 
     for (uint32_t i=0 ; i<size ; i+=CHUNK){
         if ((i + CHUNK) < size){
